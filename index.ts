@@ -24,9 +24,9 @@ export function generate(input: Input): Output {
         `REDMINE_DB_MYSQL=$(PROJECT_NAME)_${input.databaseServiceName}`,
         `REDMINE_DB_PORT=3306`,
         `REDMINE_DB_USERNAME=mysql`,
-        `REDMINE_DB_PASSWORD=${databasePassword}`, // 생성된 랜덤 DB 비밀번호
+        `REDMINE_DB_PASSWORD=${databasePassword}`,
         `REDMINE_DB_DATABASE=$(PROJECT_NAME)`,
-        `REDMINE_SECRET_KEY_BASE=${secretKeyBase}`, // 생성된 랜덤 시크릿 키
+        `REDMINE_SECRET_KEY_BASE=supersecretkey`,
         `REDMINE_DEFAULT_THEME=opale`, // 기본 테마를 'Opale'로 설정
       ].join("\n"),
       // 사용할 Docker 이미지를 지정합니다.
@@ -38,16 +38,8 @@ export function generate(input: Input): Output {
       domains: [
         {
           host: "$(EASYPANEL_DOMAIN)",
-          port: 3000, // Redmine 앱은 3000번 포트에서 실행됩니다.
+          port: 80, 
         },
-      ],
-      // 사용자가 업로드한 파일을 영구적으로 저장하기 위한 볼륨을 연결합니다.
-      volumes: [
-        {
-          type: 'volume',
-          host: 'redmine-data', // 볼륨의 이름
-          mountPoint: '/usr/src/redmine/files' // 컨테이너 내부의 파일 저장 경로
-        }
       ]
     },
   });
