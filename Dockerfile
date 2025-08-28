@@ -58,7 +58,8 @@ RUN cd /tmp/themes && \
 
 # 6. Redmine 루트 폴더로 이동하여 플러그인들이 필요로 하는 라이브러리(Gem)를 설치합니다.
 WORKDIR /usr/src/redmine
-RUN bundle install --without development test --no-deployment
+RUN bundle install --without development test --no-deployment && \
+    gem cleanup stringio
 
 # 7. 컨테이너 시작 시 실행될 스크립트를 이미지 안으로 복사하고 실행 권한을 부여합니다.
 COPY entrypoint.sh /entrypoint.sh
