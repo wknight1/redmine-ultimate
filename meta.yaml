@@ -1,28 +1,27 @@
-# meta.yaml
-
-# 템플릿의 고유 이름 (URL 등에 사용)
-name: redmine-ultimate-pack-kr
-
-# 템플릿 목록에 표시될 제목과 설명
+name: Redmine Ultimate Pack 한국어판
 description: |
-  최신 Redmine을 기반으로 Agile, Gantt, GitLab 연동, AI 도우미 등 10종 이상의 필수 플러그인과 
-  모던 테마를 사전 설치한 올인원(All-in-One) 프로젝트 관리 솔루션입니다. 
-  한국어 환경에 맞춰 UI의 '일감' 용어를 '이슈'로 변경하여 팀의 직관적인 사용을 돕습니다.
+  Redmine 기반의 올인원 프로젝트 관리 솔루션입니다. AI 도우미, 애자일 칸반 보드, 
+  고급 간트 차트, GitLab 연동, 이슈 템플릿, 태그 시스템 등 10여 개의 필수 플러그인이 
+  사전 설치되어 즉시 사용 가능합니다. 한국어 UI에서 '일감' 용어를 '이슈'로 변경하여 
+  국내 환경에 최적화되었으며, 모던한 Opale 테마를 포함한 다양한 테마가 제공됩니다.
 
-# 설치 후 사용자에게 보여줄 안내사항
 instructions: |
-  - Default admin login: admin/admin
-  - 기본 테마로 'Opale'이 적용되어 있으며, 한국어 UI의 '일감'이 '이슈'로 변경되었습니다.
-  - AI Helper 플러그인은 관리 > 플러그인 > 설정에서 API 키를 입력해야 동작합니다.
+  기본 관리자 계정: admin/admin
+  - 한국어 UI 적용 ('일감' → '이슈' 변경)
+  - AI 도우미는 관리 > 플러그인에서 API 키 설정 필요
+  - 기본 테마: Opale 적용
+  - 프로젝트별로 플러그인 모듈 활성화 필요
 
-# 템플릿 변경 이력
 changeLog:
-  - date: 2025-08-28 # 현재 날짜나 작업 날짜를 기입하세요.
-    description: >-
-      Ultimate Pack template created with 10+ plugins, 3 themes, 
-      and Korean language customization.
+  - date: 2024-10-28
+    description: 기본 템플릿 추가
+  - date: 2025-02-28
+    description: 버전 6.0.3으로 업데이트
+  - date: 2025-07-24
+    description: 버전 6.0.6으로 업데이트
+  - date: 2025-01-15
+    description: Ultimate Pack 플러그인 및 한국어 최적화 적용
 
-# 관련 외부 링크 (Redmine 공식 사이트)
 links:
   - label: Website
     url: https://www.redmine.org/
@@ -30,8 +29,9 @@ links:
     url: https://www.redmine.org/guide
   - label: Github
     url: https://github.com/redmine/redmine
-
-# 배포 시 사용자에게 보여줄 입력 폼 정의
+contributors:
+  - name: Ahson Shaikh
+    url: https://github.com/Ahson-Shaikh
 schema:
   type: object
   required:
@@ -42,61 +42,61 @@ schema:
     appServiceName:
       type: string
       title: App Service Name
-      default: redmine-ultimate
+      default: redmine
     appServiceImage:
       type: string
       title: App Service Image
-      # ✅ 중요: 이 부분을 당신이 빌드해서 푸시한 Docker 이미지 주소로 변경해야 합니다.
-      default: your-dockerhub-username/redmine-ultimate-pack:latest
+      default: redmine:6.0.6
     databaseServiceName:
       type: string
       title: Database Service Name
       default: redmine-db
-
-# 이 템플릿 사용 시 얻을 수 있는 핵심 혜택
 benefits:
-  - title: 즉시 사용 가능한 고급 워크플로우
-    description: >-
-      애자일 보드, 고급 간트 차트, 이슈 템플릿이 사전 설치되어 있어, 배포 즉시 
-      최신 방법론에 기반한 프로젝트 관리를 시작할 수 있습니다.
-  - title: 개발 및 AI 연동 자동화
-    description: >-
-      GitLab 연동으로 코드와 이슈 추적을 자동화하고, AI 도우미가 이슈 요약 및 질문 답변을 
-      지원하여 팀의 생산성을 극대화합니다.
-  - title: 완벽한 한글화 및 맞춤 UI
-    description: >-
-      모든 플러그인이 현대적인 'Opale' 테마와 통합되었으며, 한국어 UI를 '이슈' 중심으로 
-      개선하여 명확하고 직관적인 사용자 경험을 제공합니다.
+  - title: 즉시 사용 가능한 고급 기능
+    description: |
+      AI 도우미, 애자일 칸반 보드, WBS, 고급 간트 차트, 인라인 편집기 등 
+      프리미엄 플러그인들이 사전 설치되어 배포 즉시 활용 가능합니다.
+  - title: 개발팀 친화적 워크플로우
+    description: |
+      GitLab 웹훅 연동으로 커밋과 이슈를 자동 연결하고, 멘션 기능과 태그 시스템으로 
+      효율적인 협업 환경을 제공합니다.
+  - title: 한국어 환경 최적화
+    description: |
+      UI의 '일감' 용어를 '이슈'로 변경하여 국내 개발 환경에 맞게 최적화하였으며, 
+      다양한 모던 테마로 사용자 경험을 향상시켰습니다.
 
-# 이 템플릿에 포함된 주요 기능
 features:
-  - title: 애자일 칸반 보드 (Agile & Kanban Boards)
-    description: >-
-      Redmine Agile 플러그인을 통해 Trello처럼 직관적인 드래그 앤 드롭 방식으로 
-      작업 현황을 시각적으로 관리할 수 있습니다.
-  - title: AI 어시턴트 (AI Assistant)
-    description: >-
-      AI Helper 플러그인이 긴 이슈를 요약하고, 코드에 대해 설명하며, 
-      하위 작업을 제안하는 등 지능적인 지원을 제공합니다.
-  - title: GitLab 연동 (GitLab Integration)
-    description: >-
-      GitLab Hook 플러그인을 통해 커밋 메시지로 이슈를 자동으로 연결하거나 
-      종료(close)할 수 있어 개발 워크플로우가 간소화됩니다.
-  - title: 고급 간트 차트 (Advanced Gantt Charts)
-    description: >-
-      Easy Gantt 플러그인이 내장되어, 드래그 앤 드롭으로 프로젝트 일정을 손쉽게 
-      수립하고 종속성을 관리할 수 있습니다.
-  - title: 워크플로우 자동화 (Workflow Automation)
-    description: >-
-      Automation 플러그인을 사용하여 '이슈 생성 시 담당자 자동 할당' 등 
-      반복적인 작업을 자동화하는 규칙을 만들 수 있습니다.
+  - title: AI 기반 이슈 관리
+    description: |
+      AI 도우미가 긴 이슈 내용을 요약하고, 코드를 설명하며, 하위 작업을 제안하여 
+      프로젝트 관리 효율성을 극대화합니다.
+  - title: 애자일 칸반 보드
+    description: |
+      드래그 앤 드롭으로 이슈를 쉽게 관리할 수 있는 시각적 칸반 보드와 
+      애자일 워크플로우를 지원합니다.
+  - title: 고급 간트 차트 및 WBS
+    description: |
+      프로페셔널한 WBS(작업분해구조)와 인터랙티브 간트 차트로 
+      프로젝트 일정을 체계적으로 관리할 수 있습니다.
+  - title: 실시간 협업 기능
+    description: |
+      인라인 이슈 편집, @멘션 기능, 태그 시스템으로 팀원 간 실시간 소통과 
+      협업이 원활하게 이루어집니다.
+  - title: GitLab 완전 통합
+    description: |
+      GitLab 웹훅을 통해 커밋 메시지로 이슈를 자동 업데이트하고 
+      코드 변경 사항을 실시간으로 추적할 수 있습니다.
+  - title: To-do 리스트 및 이슈 템플릿
+    description: |
+      체크리스트 기능과 이슈 템플릿으로 일관된 업무 프로세스를 구축하고 
+      작업 진행 상황을 세밀하게 관리할 수 있습니다.
 
-# 템플릿 검색을 위한 태그
 tags:
-  - Project Management
-  - Issue Tracking
-  - Agile
-  - Kanban
-  - GitLab
-  - DevOps
-  - AI
+  - 프로젝트 관리
+  - 이슈 추적
+  - 애자일
+  - 칸반
+  - AI 도우미
+  - GitLab 연동
+  - 한국어
+  - 협업 도구
