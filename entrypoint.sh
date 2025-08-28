@@ -3,8 +3,6 @@
 
 set -e
 
-# 원본 docker-entrypoint.sh를 수정하여 플러그인 마이그레이션을 추가
-# 먼저 원본 entrypoint의 모든 초기화 작업을 수행
 echo "Initializing Redmine with plugins..."
 
 # 임시로 원본 entrypoint의 내용을 실행하되, 서버는 시작하지 않음
@@ -21,10 +19,15 @@ if [ "$1" = 'rails' ] && [ "$2" = 'server' ]; then
     
     echo "Database is ready. Running plugin migrations..."
     
-    # 플러그인 마이그레이션 실행
-    bundle exec rake redmine:plugins:migrate RAILS_ENV=production
+    # 플러그인 마이그레이션 실행 (경고 억제)
+    RAILS_ENV=production bundle exec rake redmine:plugins:migrate 2>/dev/null || \
+    RAILS_ENV=production bundle exec rake redmine:plugins:migrate
     
     echo "Plugin migrations completed. Starting Rails server..."
+    
+    # Asset precompilation warnings 억제를 위한 환경 변수 설정
+    export RAILS_ASSET_PRECOMPILATION_SILENT=true
+    export RAILS_LOG_LEVEL=error
     
     # 이제 Rails 서버 시작
     exec bundle exec rails server -b 0.0.0.0 -e production

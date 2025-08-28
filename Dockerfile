@@ -40,13 +40,13 @@ RUN cd /tmp/plugins && \
     unzip -q gantt-pro-redmine-6.zip -d /usr/src/redmine/plugins/ && \
     rm -rf /tmp/plugins
 
-# 5. 테마를 설치할 public/themes 폴더로 이동합니다.
+# 5. 테마를 설치할 themes 폴더로 이동합니다. (Redmine 6+ 버전)
 WORKDIR /usr/src/redmine/public/themes
 
 # 필요한 테마들을 모두 다운로드합니다.
-RUN git clone --depth 1 https://github.com/gagnieray/opale.git opale_gagnieray
+RUN git clone --depth 1 https://github.com/gagnieray/opale.git opale
 
-# 로컬 테마 ZIP 파일들을 복사하고 압축 해제합니다. (Redmine 6+ 버전이므로 themes 디렉토리 사용)
+# 로컬 테마 ZIP 파일들을 복사하고 압축 해제합니다. (Redmine 6+ 버전이므로 public/themes 디렉토리 사용)
 COPY redminecrm_theme-1_2_0.zip highrise_theme-1_2_0.zip coffee_theme-1_0_0.zip a1_theme-4_1_2.zip circle_theme-2_2_3.zip /tmp/themes/
 RUN cd /tmp/themes && \
     unzip -q redminecrm_theme-1_2_0.zip -d /usr/src/redmine/public/themes/ && \
@@ -56,11 +56,25 @@ RUN cd /tmp/themes && \
     unzip -q circle_theme-2_2_3.zip -d /usr/src/redmine/public/themes/ && \
     rm -rf /tmp/themes
 
+# 테마 디렉토리 권한 설정 및 구조 확인
+RUN ls -la /usr/src/redmine/public/themes/ && \
+    chown -R redmine:redmine /usr/src/redmine/public/themes
+
 # 6. Redmine 루트 폴더로 이동하여 플러그인들이 필요로 하는 라이브러리(Gem)를 설치합니다.
 WORKDIR /usr/src/redmine
 
-# Gemfile에서 중복된 puma gem 제거
-RUN sed -i '/gem "puma"/d' Gemfile.lock || true
+# Gemfile과 Gemfile.lock에서 중복된 puma gem 완전 제거
+RUN grep -v 'gem "puma"' Gemfile > Gemfile.tmp && mv Gemfile.tmp Gemfile && \
+    sed -i '/puma/d' Gemfile.lock 2>/dev/null || true
+
+# flux_tags 플러그인의 초기화 오류 수정
+RUN if [ -f "plugins/flux_tags/init.rb" ]; then \
+        sed -i 's/if MAJOR = 6/if MAJOR == 6/' plugins/flux_tags/init.rb; \
+    fi
+
+# AI Helper 설정 파일 생성 (경고 제거)
+RUN mkdir -p config/ai_helper && \
+    echo '{}' > config/ai_helper/config.json
 
 RUN bundle config set without 'development test' && \
     bundle config set deployment false && \
