@@ -43,91 +43,93 @@ RUN cd /tmp/plugins && \
 # 5. 테마를 설치할 themes 폴더로 이동합니다. (Redmine 6+ 버전)
 WORKDIR /usr/src/redmine/public/themes
 
-# Git 테마 설치
-RUN git clone --depth 1 https://github.com/gagnieray/opale.git opale_modern
+# 기존 테마 백업 및 확인
+RUN echo "=== Existing themes ===" && \
+    ls -la /usr/src/redmine/public/themes/ && \
+    find /usr/src/redmine/public/themes -name "application.css"
 
-# 로컬 테마 ZIP 파일들을 복사
+# Git 테마 설치 (opale)
+RUN git clone --depth 1 https://github.com/gagnieray/opale.git opale && \
+    echo "Opale theme structure:" && \
+    find opale -type f | head -10
+
+# 로컬 테마 ZIP 파일들을 복사하고 구조 분석
 COPY redminecrm_theme-1_2_0.zip highrise_theme-1_2_0.zip coffee_theme-1_0_0.zip a1_theme-4_1_2.zip circle_theme-2_2_3.zip /tmp/themes/
 
-# ZIP 테마들을 개별적으로 설치하고 구조 확인
+# 각 ZIP 파일의 내부 구조를 확인하고 올바르게 설치
 RUN cd /tmp/themes && \
-    echo "=== Installing RedmineCRM theme ===" && \
-    unzip -l redminecrm_theme-1_2_0.zip | head -20 && \
-    mkdir -p /usr/src/redmine/public/themes/redminecrm && \
-    unzip -q redminecrm_theme-1_2_0.zip -d /usr/src/redmine/public/themes/redminecrm && \
     \
-    echo "=== Installing Highrise theme ===" && \
-    unzip -l highrise_theme-1_2_0.zip | head -20 && \
-    mkdir -p /usr/src/redmine/public/themes/highrise && \
-    unzip -q highrise_theme-1_2_0.zip -d /usr/src/redmine/public/themes/highrise && \
+    echo "=== RedmineCRM Theme Installation ===" && \
+    unzip -q redminecrm_theme-1_2_0.zip -d /tmp/redminecrm_extract && \
+    find /tmp/redminecrm_extract -type f | head -10 && \
+    cp -r /tmp/redminecrm_extract/* /usr/src/redmine/public/themes/ && \
     \
-    echo "=== Installing Coffee theme ===" && \
-    unzip -l coffee_theme-1_0_0.zip | head -20 && \
-    mkdir -p /usr/src/redmine/public/themes/coffee && \
-    unzip -q coffee_theme-1_0_0.zip -d /usr/src/redmine/public/themes/coffee && \
+    echo "=== Highrise Theme Installation ===" && \
+    unzip -q highrise_theme-1_2_0.zip -d /tmp/highrise_extract && \
+    find /tmp/highrise_extract -type f | head -10 && \
+    cp -r /tmp/highrise_extract/* /usr/src/redmine/public/themes/ && \
     \
-    echo "=== Installing A1 theme ===" && \
-    unzip -l a1_theme-4_1_2.zip | head -20 && \
-    mkdir -p /usr/src/redmine/public/themes/a1 && \
-    unzip -q a1_theme-4_1_2.zip -d /usr/src/redmine/public/themes/a1 && \
+    echo "=== Coffee Theme Installation ===" && \
+    unzip -q coffee_theme-1_0_0.zip -d /tmp/coffee_extract && \
+    find /tmp/coffee_extract -type f | head -10 && \
+    cp -r /tmp/coffee_extract/* /usr/src/redmine/public/themes/ && \
     \
-    echo "=== Installing Circle theme ===" && \
-    unzip -l circle_theme-2_2_3.zip | head -20 && \
-    mkdir -p /usr/src/redmine/public/themes/circle && \
-    unzip -q circle_theme-2_2_3.zip -d /usr/src/redmine/public/themes/circle && \
+    echo "=== A1 Theme Installation ===" && \
+    unzip -q a1_theme-4_1_2.zip -d /tmp/a1_extract && \
+    find /tmp/a1_extract -type f | head -10 && \
+    cp -r /tmp/a1_extract/* /usr/src/redmine/public/themes/ && \
     \
-    rm -rf /tmp/themes
+    echo "=== Circle Theme Installation ===" && \
+    unzip -q circle_theme-2_2_3.zip -d /tmp/circle_extract && \
+    find /tmp/circle_extract -type f | head -10 && \
+    cp -r /tmp/circle_extract/* /usr/src/redmine/public/themes/ && \
+    \
+    rm -rf /tmp/themes /tmp/*_extract
 
-# 테마 구조 정리 및 확인
-RUN echo "=== Theme Structure Analysis ===" && \
+# 테마 구조 확인 및 수정
+RUN echo "=== Theme Structure Fix ===" && \
     for theme_dir in /usr/src/redmine/public/themes/*/; do \
         theme_name=$(basename "$theme_dir"); \
-        echo "Processing theme: $theme_name"; \
+        echo "Processing: $theme_name"; \
         \
-        # 만약 테마 폴더 안에 또 다른 폴더가 있다면 한 레벨 위로 이동
-        if [ $(find "$theme_dir" -mindepth 1 -maxdepth 1 -type d | wc -l) -eq 1 ] && [ $(find "$theme_dir" -mindepth 1 -maxdepth 1 -type f | wc -l) -eq 0 ]; then \
-            inner_dir=$(find "$theme_dir" -mindepth 1 -maxdepth 1 -type d); \
-            echo "Moving contents from $inner_dir to $theme_dir"; \
-            mv "$inner_dir"/* "$theme_dir/" 2>/dev/null || true; \
-            mv "$inner_dir"/.[^.]* "$theme_dir/" 2>/dev/null || true; \
-            rmdir "$inner_dir" 2>/dev/null || true; \
-        fi; \
-        \
-        # stylesheets 폴더가 없다면 생성하고 CSS 파일들을 이동
-        if [ ! -d "$theme_dir/stylesheets" ]; then \
+        # stylesheets 디렉토리가 있는지 확인
+        if [ -d "$theme_dir/stylesheets" ]; then \
+            echo "  ✓ stylesheets directory exists"; \
+        else \
+            echo "  ! Creating stylesheets directory"; \
             mkdir -p "$theme_dir/stylesheets"; \
-            find "$theme_dir" -name "*.css" -not -path "*/stylesheets/*" -exec mv {} "$theme_dir/stylesheets/" \; 2>/dev/null || true; \
         fi; \
         \
-        # application.css가 없다면 가장 큰 CSS 파일을 application.css로 복사
-        if [ ! -f "$theme_dir/stylesheets/application.css" ]; then \
-            largest_css=$(find "$theme_dir/stylesheets" -name "*.css" -exec wc -c {} + 2>/dev/null | sort -n | tail -1 | awk '{print $2}'); \
-            if [ -n "$largest_css" ] && [ -f "$largest_css" ]; then \
-                echo "Creating application.css from $largest_css"; \
-                cp "$largest_css" "$theme_dir/stylesheets/application.css"; \
+        # application.css 파일 확인 및 생성
+        if [ -f "$theme_dir/stylesheets/application.css" ]; then \
+            echo "  ✓ application.css exists"; \
+        elif [ -f "$theme_dir/application.css" ]; then \
+            echo "  ! Moving application.css to stylesheets/"; \
+            mv "$theme_dir/application.css" "$theme_dir/stylesheets/"; \
+        else \
+            # CSS 파일을 찾아서 application.css로 복사
+            css_file=$(find "$theme_dir" -name "*.css" | head -1); \
+            if [ -n "$css_file" ]; then \
+                echo "  ! Creating application.css from $css_file"; \
+                cp "$css_file" "$theme_dir/stylesheets/application.css"; \
+            else \
+                echo "  ! Creating minimal application.css"; \
+                echo "/* $theme_name theme */" > "$theme_dir/stylesheets/application.css"; \
             fi; \
         fi; \
     done
 
-# 최종 테마 구조 확인 및 리포트
-RUN echo "=== Final Theme Report ===" && \
-    for theme_dir in /usr/src/redmine/public/themes/*/; do \
-        theme_name=$(basename "$theme_dir"); \
-        echo "Theme: $theme_name"; \
-        echo "  Directory: $theme_dir"; \
-        echo "  Files:"; \
-        find "$theme_dir" -type f | head -10 | sed 's/^/    /'; \
-        if [ -f "$theme_dir/stylesheets/application.css" ]; then \
-            echo "  ✓ application.css found"; \
-        else \
-            echo "  ✗ application.css missing"; \
-        fi; \
-        echo ""; \
+# 최종 테마 검증
+RUN echo "=== Final Theme Verification ===" && \
+    echo "All directories in themes:" && \
+    find /usr/src/redmine/public/themes -maxdepth 1 -type d | sort && \
+    echo "" && \
+    echo "Valid themes (with application.css):" && \
+    find /usr/src/redmine/public/themes -name "application.css" | while read css_file; do \
+        theme_name=$(echo "$css_file" | sed 's|.*themes/||; s|/stylesheets/application.css||'); \
+        echo "  ✓ $theme_name"; \
     done && \
-    \
-    echo "=== Available themes for Redmine ===" && \
-    find /usr/src/redmine/public/themes -name "application.css" | sed 's|/usr/src/redmine/public/themes/||; s|/stylesheets/application.css||' && \
-    \
+    echo "" && \
     chown -R redmine:redmine /usr/src/redmine/public/themes
 
 # 6. Redmine 루트 폴더로 이동하여 플러그인들이 필요로 하는 라이브러리(Gem)를 설치합니다.

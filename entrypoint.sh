@@ -62,7 +62,17 @@ if [ "$1" = 'rails' ] && [ "$2" = 'server' ]; then
     echo "Step 6: Generating secret token..."
     bundle exec rake generate_secret_token RAILS_ENV=production || true
     
-    echo "Step 7: Starting Rails server..."
+    echo "Step 7: Clearing Rails cache and precompiling assets..."
+    bundle exec rake tmp:clear RAILS_ENV=production || true
+    bundle exec rake assets:precompile RAILS_ENV=production || true
+    
+    echo "Step 8: Verifying theme installation..."
+    echo "Available theme directories:"
+    ls -la /usr/src/redmine/public/themes/
+    echo "Themes with application.css:"
+    find /usr/src/redmine/public/themes -name "application.css" -exec dirname {} \; | sed 's|.*/themes/||; s|/stylesheets||'
+    
+    echo "Step 9: Starting Rails server..."
     # 환경 변수 설정으로 로그 레벨 조정
     export RAILS_LOG_LEVEL=info
     
