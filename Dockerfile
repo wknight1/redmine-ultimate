@@ -58,9 +58,13 @@ RUN cd /tmp/themes && \
 
 # 6. Redmine 루트 폴더로 이동하여 플러그인들이 필요로 하는 라이브러리(Gem)를 설치합니다.
 WORKDIR /usr/src/redmine
+
+# Gemfile에서 중복된 puma gem 제거
+RUN sed -i '/gem "puma"/d' Gemfile.lock || true
+
 RUN bundle config set without 'development test' && \
     bundle config set deployment false && \
-    bundle install && \
+    bundle install --jobs 4 --retry 3 && \
     gem cleanup stringio
 
 # 7. 컨테이너 시작 시 실행될 스크립트를 이미지 안으로 복사하고 실행 권한을 부여합니다.
